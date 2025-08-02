@@ -22,7 +22,7 @@ jobs:
 
       # 可选：将前端 build 结果上传为 artifact 以便部署
       - name: Upload build files
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-build
           path: frontend/build/
@@ -46,7 +46,7 @@ jobs:
         run: mvn clean package -DskipTests
 
       - name: Upload backend JAR
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-jar
           path: backend/target/*.jar
