@@ -11,17 +11,6 @@ const TaskList: React.FC = () => {
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
   const navigate = useNavigate();
 
-  // 登录检查
-  useEffect(() => {
-    const user = localStorage.getItem('user');
-    if (!user) {
-      alert('请先登录后再访问任务管理');
-      navigate('/login');
-    } else {
-      fetchTasks();
-    }
-  }, []);
-
   // 获取任务列表
   const fetchTasks = async () => {
   try {
@@ -48,7 +37,20 @@ const TaskList: React.FC = () => {
     alert('网络错误，请稍后再试');
     console.error(error);
   }
-};
+  };
+
+  // 登录检查
+  useEffect(() => {
+    const user = localStorage.getItem('user');
+    if (!user) {
+      alert('请先登录后再访问任务管理');
+      navigate('/login');
+    } else {
+      fetchTasks();
+    }
+  }, [fetchTasks, navigate]); 
+
+  
 
   // 删除任务
   const handleDelete = async (id: number) => {
