@@ -1,5 +1,5 @@
 // src/components/TaskList.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useCallback,  useEffect, useState } from 'react';
 import { Task } from '../types/Task';
 import { useNavigate } from 'react-router-dom';
 import { apiFetch } from '../api';
@@ -11,35 +11,34 @@ const TaskList: React.FC = () => {
   const [newTaskDueDate, setNewTaskDueDate] = useState('');
   const navigate = useNavigate();
 
-  // 获取任务列表
-  const fetchTasks = async () => {
-  try {
-    const res = await apiFetch('/api/tasks', { 
-  credentials: 'include'});
-    
-    if (res.status === 401) {
-      alert('登录失效，请重新登录');
-      navigate('/login');
-      return;
+  const fetchTasks = useCallback(async () => {
+    try {
+      const res = await apiFetch('/api/tasks', {
+        credentials: 'include',
+      });
+
+      if (res.status === 401) {
+        alert('登录失效，请重新登录');
+        navigate('/login');
+        return;
+      }
+
+      if (!res.ok) {
+        throw new Error('获取任务失败');
+      }
+
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        throw new Error('任务数据格式错误');
+      }
+
+      setTasks(data);
+    } catch (error) {
+      alert('网络错误，请稍后再试');
+      console.error(error);
     }
+  }, [navigate]); // 👈 依赖中加入 navigate
 
-    if (!res.ok) {
-      throw new Error('获取任务失败');
-    }
-
-    const data = await res.json();
-    if (!Array.isArray(data)) {
-      throw new Error('任务数据格式错误');
-    }
-
-    setTasks(data);
-  } catch (error) {
-    alert('网络错误，请稍后再试');
-    console.error(error);
-  }
-  };
-
-  // 登录检查
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
@@ -48,9 +47,8 @@ const TaskList: React.FC = () => {
     } else {
       fetchTasks();
     }
-  }, [fetchTasks, navigate]); 
+  }, [fetchTasks, navigate]); // ✅ 现在不会再警告了
 
-  
 
   // 删除任务
   const handleDelete = async (id: number) => {
